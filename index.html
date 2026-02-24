@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sae Kah Rhae 😭</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0a0010;
+            cursor: none;
+            font-family: Arial, sans-serif;
+            touch-action: none;
+        }
+
+        /* ── Falling text ── */
+        .falling {
+            position: absolute;
+            font-weight: bold;
+            white-space: nowrap;
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
+            font-size: clamp(11px, 3vw, 22px);
+        }
+
+        /* ── 8 Direction Keyframes for text ── */
+        @keyframes fallDown    { from { transform: translateY(-150px) rotate(0deg);   opacity:1; } to { transform: translateY(110vh)  rotate(360deg);  opacity:0; } }
+        @keyframes fallUp      { from { transform: translateY(150px)  rotate(0deg);   opacity:1; } to { transform: translateY(-110vh) rotate(-360deg); opacity:0; } }
+        @keyframes fallRight   { from { transform: translateX(-150px) rotate(0deg);   opacity:1; } to { transform: translateX(110vw)  rotate(360deg);  opacity:0; } }
+        @keyframes fallLeft    { from { transform: translateX(150px)  rotate(0deg);   opacity:1; } to { transform: translateX(-110vw) rotate(-360deg); opacity:0; } }
+        @keyframes fallDiagTLBR{ from { transform: translate(-150px,-150px) rotate(0deg);  opacity:1; } to { transform: translate(110vw,110vh)   rotate(360deg);  opacity:0; } }
+        @keyframes fallDiagTRBL{ from { transform: translate(150px,-150px)  rotate(0deg);  opacity:1; } to { transform: translate(-110vw,110vh)  rotate(-360deg); opacity:0; } }
+        @keyframes fallDiagBLTR{ from { transform: translate(-150px,150px)  rotate(0deg);  opacity:1; } to { transform: translate(110vw,-110vh)  rotate(-360deg); opacity:0; } }
+        @keyframes fallDiagBRTL{ from { transform: translate(150px,150px)   rotate(0deg);  opacity:1; } to { transform: translate(-110vw,-110vh) rotate(360deg);  opacity:0; } }
+
+        /* ── Falling photo shapes ── */
+        .photo-shape {
+            position: absolute;
+            background-image: url("WhatsApp Image 2026-02-23 at 12.46.30 AM.jpeg");
+            background-size: cover;
+            background-position: center top;
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
+            cursor: none;
+        }
+
+        .photo-shape:hover, .photo-shape:active {
+            transform: scale(2.5) !important;
+            z-index: 100;
+            filter: brightness(1.3) drop-shadow(0 0 12px #ff2d78);
+        }
+
+        .shape-circle   { border-radius: 50%; }
+        .shape-diamond  { border-radius: 4px; }
+        .shape-triangle { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); border-radius: 0; }
+        .shape-star     { clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); }
+        .shape-hexagon  { clip-path: polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%); }
+        .shape-square   { border-radius: 6px; }
+
+        /* ── 8 Direction Keyframes for shapes ── */
+        @keyframes shapeDown    { from { transform: translateY(-150px); opacity:0.9; } to { transform: translateY(110vh);   opacity:0; } }
+        @keyframes shapeUp      { from { transform: translateY(150px);  opacity:0.9; } to { transform: translateY(-110vh);  opacity:0; } }
+        @keyframes shapeRight   { from { transform: translateX(-150px); opacity:0.9; } to { transform: translateX(110vw);   opacity:0; } }
+        @keyframes shapeLeft    { from { transform: translateX(150px);  opacity:0.9; } to { transform: translateX(-110vw);  opacity:0; } }
+        @keyframes shapeDiagTLBR{ from { transform: translate(-150px,-150px); opacity:0.9; } to { transform: translate(110vw,110vh);   opacity:0; } }
+        @keyframes shapeDiagTRBL{ from { transform: translate(150px,-150px);  opacity:0.9; } to { transform: translate(-110vw,110vh);  opacity:0; } }
+        @keyframes shapeDiagBLTR{ from { transform: translate(-150px,150px);  opacity:0.9; } to { transform: translate(110vw,-110vh);  opacity:0; } }
+        @keyframes shapeDiagBRTL{ from { transform: translate(150px,150px);   opacity:0.9; } to { transform: translate(-110vw,-110vh); opacity:0; } }
+
+        /* ── Custom cursor (desktop only) ── */
+        .cursor {
+            position: fixed;
+            font-size: 28px;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9998;
+            filter: drop-shadow(0 0 6px #ff2d78);
+            transition: transform 0.05s;
+        }
+
+        /* ── Click / tap ripple ── */
+        .ripple {
+            position: fixed;
+            border: 2px solid #ff2d78;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            transform: translate(-50%, -50%) scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+            z-index: 9997;
+        }
+        @keyframes rippleAnim {
+            to { transform: translate(-50%, -50%) scale(14); opacity: 0; }
+        }
+
+        /* ── Enter overlay ── */
+        #overlay {
+            position: fixed;
+            inset: 0;
+            background: #0a0010;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            cursor: pointer;
+            padding: 20px;
+            gap: 0;
+        }
+
+        #overlay .photo-preview {
+            width: clamp(110px, 35vw, 160px);
+            height: clamp(110px, 35vw, 160px);
+            border-radius: 50%;
+            background-image: url("WhatsApp Image 2026-02-23 at 12.46.30 AM.jpeg");
+            background-size: cover;
+            background-position: center top;
+            border: 3px solid #ff2d78;
+            box-shadow: 0 0 30px #ff2d7866, 0 0 60px #bf00ff44;
+            animation: pulse 1.4s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+
+        #overlay .moon {
+            font-size: clamp(40px, 10vw, 60px);
+            animation: pulse 1.2s ease-in-out infinite;
+            margin-bottom: 12px;
+        }
+
+        #overlay p {
+            color: #ffffff;
+            font-size: clamp(11px, 3.5vw, 16px);
+            letter-spacing: clamp(1px, 1vw, 4px);
+            text-transform: uppercase;
+            text-align: center;
+            margin: 0;
+            opacity: 0.95;
+            text-shadow: 0 0 10px #ff2d78aa;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(1.08); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="overlay">
+    <div class="photo-preview"></div>
+    <div class="moon">🌚</div>
+    <p>Meri call ni uthae na (press here)</p>
+</div>
+
+<div class="cursor">🌚</div>
+
+<script>
+    const SHAPES = ["shape-circle","shape-diamond","shape-triangle","shape-star","shape-hexagon","shape-square"];
+
+    // ── Falling words pool ──
+    const WORDS = [
+        "Sae kah rhae 🌚",
+        "Priority ",
+        "Sae kah rhae 🌚",
+        "Priority",
+        "Sae kah rhae 🌚",
+        "Priority 🌚",
+    ];
+
+    // ── Colour palette ──
+    const COLOURS = [
+        { hex: "#ff2d78", glow: "#ff2d7899" },
+        { hex: "#bf00ff", glow: "#bf00ff99" },
+        { hex: "#ffd700", glow: "#ffd70099" },
+        { hex: "#ff6b35", glow: "#ff6b3599" },
+        { hex: "#00e5ff", glow: "#00e5ff99" },
+        { hex: "#a8ff3e", glow: "#a8ff3e99" },
+    ];
+
+    // ── Direction configs ──
+    const DIRECTIONS = [
+        { animText:"fallDown",     animShape:"shapeDown",     spawn:(w,h)=>({ left:Math.random()*w, top:0 }) },
+        { animText:"fallUp",       animShape:"shapeUp",       spawn:(w,h)=>({ left:Math.random()*w, top:h }) },
+        { animText:"fallRight",    animShape:"shapeRight",    spawn:(w,h)=>({ left:0,               top:Math.random()*h }) },
+        { animText:"fallLeft",     animShape:"shapeLeft",     spawn:(w,h)=>({ left:w,               top:Math.random()*h }) },
+        { animText:"fallDiagTLBR", animShape:"shapeDiagTLBR", spawn:(w,h)=>({ left:0, top:0 }) },
+        { animText:"fallDiagTRBL", animShape:"shapeDiagTRBL", spawn:(w,h)=>({ left:w, top:0 }) },
+        { animText:"fallDiagBLTR", animShape:"shapeDiagBLTR", spawn:(w,h)=>({ left:0, top:h }) },
+        { animText:"fallDiagBRTL", animShape:"shapeDiagBRTL", spawn:(w,h)=>({ left:w, top:h }) },
+    ];
+
+    let wordIdx = 0;
+    function nextWord() { return WORDS[wordIdx++ % WORDS.length]; }
+    function randomDir()    { return DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)]; }
+    function randomColour() { return COLOURS[Math.floor(Math.random() * COLOURS.length)]; }
+
+    // ── Falling text ──
+    function createFallingText() {
+        const el  = document.createElement("div");
+        el.classList.add("falling");
+        el.innerText = nextWord();
+
+        const dir  = randomDir();
+        const col  = randomColour();
+        const w    = window.innerWidth;
+        const h    = window.innerHeight;
+        const pos  = dir.spawn(w, h);
+        const dur  = 6 + Math.random() * 6;
+        const size = Math.max(11, 13 + Math.random() * 18);
+
+        el.style.left              = pos.left + "px";
+        el.style.top               = pos.top  + "px";
+        el.style.color             = col.hex;
+        el.style.textShadow        = `0 0 8px ${col.glow}`;
+        el.style.fontSize          = size + "px";
+        el.style.animationName     = dir.animText;
+        el.style.animationDuration = dur + "s";
+
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), dur * 1000 + 300);
+    }
+
+    // ── Falling photo shapes ──
+    function createPhotoShape() {
+        const el    = document.createElement("div");
+        el.classList.add("photo-shape");
+        el.classList.add(SHAPES[Math.floor(Math.random() * SHAPES.length)]);
+
+        const dir  = randomDir();
+        const col  = randomColour();
+        const w    = window.innerWidth;
+        const h    = window.innerHeight;
+        const pos  = dir.spawn(w, h);
+        const size = Math.max(25, 35 + Math.random() * 40);
+        const dur  = 7 + Math.random() * 6;
+
+        el.style.width             = size + "px";
+        el.style.height            = size + "px";
+        el.style.left              = pos.left + "px";
+        el.style.top               = pos.top  + "px";
+        el.style.filter            = `hue-rotate(${Math.random()*60}deg) brightness(1.1) drop-shadow(0 0 5px ${col.glow})`;
+        el.style.animationName     = dir.animShape;
+        el.style.animationDuration = dur + "s";
+
+        el.addEventListener("click",       (e) => { spawnRipple(e.clientX, e.clientY); burstShapes(e.clientX, e.clientY); el.remove(); });
+        el.addEventListener("touchstart",  (e) => { const t = e.touches[0]; spawnRipple(t.clientX, t.clientY); burstShapes(t.clientX, t.clientY); el.remove(); }, { passive: true });
+
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), dur * 1000 + 300);
+    }
+
+    setInterval(createFallingText, 160);
+    setInterval(createPhotoShape,  400);
+
+    // ── Custom cursor (desktop) ──
+    const cursor = document.querySelector(".cursor");
+    document.addEventListener("mousemove", (e) => {
+        cursor.style.left = e.clientX + "px";
+        cursor.style.top  = e.clientY + "px";
+    });
+
+    // ── Ripple ──
+    function spawnRipple(x, y) {
+        const col = randomColour();
+        const r   = document.createElement("div");
+        r.classList.add("ripple");
+        r.style.left        = x + "px";
+        r.style.top         = y + "px";
+        r.style.borderColor = col.hex;
+        document.body.appendChild(r);
+        setTimeout(() => r.remove(), 650);
+    }
+
+    // ── Burst mini shapes ──
+    function burstShapes(x, y) {
+        for (let i = 0; i < 6; i++) {
+            const el  = document.createElement("div");
+            const col = randomColour();
+            el.classList.add("photo-shape");
+            el.classList.add(SHAPES[Math.floor(Math.random() * SHAPES.length)]);
+            const s = 20 + Math.random() * 20;
+            el.style.width         = s + "px";
+            el.style.height        = s + "px";
+            el.style.left          = x + "px";
+            el.style.top           = y + "px";
+            el.style.position      = "fixed";
+            el.style.transition    = "all 0.8s ease-out";
+            el.style.pointerEvents = "none";
+            el.style.filter        = `drop-shadow(0 0 6px ${col.glow}) brightness(1.2)`;
+            document.body.appendChild(el);
+            const angle = (i / 6) * Math.PI * 2;
+            const dist  = 60 + Math.random() * 80;
+            setTimeout(() => {
+                el.style.left      = (x + Math.cos(angle) * dist) + "px";
+                el.style.top       = (y + Math.sin(angle) * dist) + "px";
+                el.style.opacity   = "0";
+                el.style.transform = "scale(0.2)";
+            }, 20);
+            setTimeout(() => el.remove(), 900);
+        }
+    }
+
+    document.addEventListener("click",     (e) => { spawnRipple(e.clientX, e.clientY); });
+    document.addEventListener("touchstart",(e) => { const t = e.touches[0]; spawnRipple(t.clientX, t.clientY); }, { passive: true });
+
+    // ── Audio ──
+    const audio = new Audio("WhatsApp Audio 2026-02-25 at 12.45.46 AM.ogg");
+    audio.addEventListener("timeupdate", () => {
+        if (audio.currentTime >= 2) { audio.currentTime = 0; audio.play(); }
+    });
+
+    // ── Overlay ──
+    document.getElementById("overlay").addEventListener("click", () => {
+        document.getElementById("overlay").style.display = "none";
+        audio.play();
+    });
+</script>
+
+</body>
+</html>
